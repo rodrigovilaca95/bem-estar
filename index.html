@@ -541,7 +541,7 @@
             document.getElementById('todayUses').textContent = sessionData.stats.todayUses;
             
             const avgScore = sessionData.stats.totalUses > 0 ? 
-                (sessionData.stats.totalScore / sessionData.stats.totalUses).toFixed(1) : 0;
+                (sessionData.stats.totalScore / (sessionData.stats.totalUses * 4)).toFixed(1) : 0;
             document.getElementById('avgScore').textContent = avgScore;
             
             document.getElementById('streak').textContent = sessionData.stats.streak;
