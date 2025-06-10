@@ -171,20 +171,98 @@
 
         .recommendations {
             list-style: none;
+            margin-bottom: 30px;
         }
 
-        .recommendations li {
-            padding: 15px;
+        .recommendation-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
             background: rgba(255, 255, 255, 0.9);
-            margin-bottom: 10px;
-            border-radius: 10px;
+            margin-bottom: 15px;
+            border-radius: 15px;
             border-left: 4px solid #c4a8c8;
             transition: all 0.3s ease;
+            position: relative;
         }
 
-        .recommendations li:hover {
+        .recommendation-item:hover {
             transform: translateX(5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .recommendation-text {
+            flex: 1;
+            margin-right: 15px;
+            font-size: 1rem;
+        }
+
+        .recommendation-reason {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .practice-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #c4a8c8;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: white;
+        }
+
+        .practice-checkbox.checked {
+            background: #c4a8c8;
+            border-color: #c4a8c8;
+        }
+
+        .practice-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .practice-summary {
+            padding: 20px;
+            background: rgba(184, 212, 184, 0.2);
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .practice-summary h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .practice-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+
+        .practice-stat {
+            text-align: center;
+        }
+
+        .practice-stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #8fa3a3;
+        }
+
+        .practice-stat-label {
+            font-size: 0.9rem;
+            color: #666;
         }
 
         .stats {
@@ -243,6 +321,25 @@
             transform: translateY(-1px);
         }
 
+        .finish-feedback-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #52c252 0%, #4a90e2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .finish-feedback-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(82, 194, 82, 0.3);
+        }
+
         @media (max-width: 768px) {
             .options {
                 flex-direction: column;
@@ -258,6 +355,16 @@
             
             .content {
                 padding: 20px;
+            }
+            
+            .recommendation-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .practice-checkbox {
+                margin-top: 10px;
+                align-self: flex-end;
             }
         }
     </style>
@@ -323,6 +430,25 @@
             <div class="results" id="results">
                 <div class="result-title" id="resultTitle"></div>
                 <ul class="recommendations" id="recommendations"></ul>
+                
+                <div class="practice-summary" id="practiceSummary" style="display: none;">
+                    <h3>📊 Sua Prática de Bem-Estar</h3>
+                    <p>Marque as recomendações que você conseguiu praticar:</p>
+                    <div class="practice-stats">
+                        <div class="practice-stat">
+                            <div class="practice-stat-number" id="practiceCount">0</div>
+                            <div class="practice-stat-label">Praticadas</div>
+                        </div>
+                        <div class="practice-stat">
+                            <div class="practice-stat-number" id="practicePercentage">0%</div>
+                            <div class="practice-stat-label">Taxa de Sucesso</div>
+                        </div>
+                    </div>
+                    <button class="finish-feedback-btn" onclick="finishFeedback()">
+                        Finalizar e Salvar Progresso
+                    </button>
+                </div>
+                
                 <button class="reset-btn" onclick="resetForm()">Nova Avaliação</button>
             </div>
 
@@ -342,8 +468,8 @@
                         <div class="stat-label">Score Médio</div>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number" id="streak">0</span>
-                        <div class="stat-label">Dias Consecutivos</div>
+                        <span class="stat-number" id="practiceRate">0%</span>
+                        <div class="stat-label">Taxa de Prática</div>
                     </div>
                 </div>
             </div>
@@ -354,52 +480,154 @@
         // Dados armazenados em memória durante a sessão
         let sessionData = {
             responses: {},
+            currentRecommendations: [],
+            practicedRecommendations: [],
             stats: {
-                totalUses: parseInt(getCookie('totalUses')) || 0,
-                todayUses: parseInt(getCookie('todayUses')) || 0,
-                lastUseDate: getCookie('lastUseDate') || '',
-                totalScore: parseInt(getCookie('totalScore')) || 0,
-                streak: parseInt(getCookie('streak')) || 0
+                totalUses: 0,
+                todayUses: 0,
+                lastUseDate: '',
+                totalScore: 0,
+                totalPracticed: 0,
+                totalRecommendations: 0,
+                streak: 0
             }
         };
 
-        // Sistema de recomendações baseado nas respostas
-        const recommendations = {
-            low: [
-                "🧘‍♀️ Pratique 5 minutos de respiração profunda",
-                "🚶‍♂️ Faça uma caminhada de 10 minutos ao ar livre",
-                "💧 Beba um copo d'água e hidrate-se",
-                "🎵 Escute uma música que te deixa feliz",
-                "📞 Entre em contato com um amigo ou familiar",
-                "🌱 Pratique gratidão: liste 3 coisas boas do seu dia",
-                "☀️ Saia para tomar um pouco de sol",
-                "🛁 Tome um banho relaxante"
+        // Sistema de recomendações inteligente baseado em combinações específicas
+        const intelligentRecommendations = {
+            // Baixa energia + Estresse alto
+            lowEnergyHighStress: [
+                {
+                    text: "🧘‍♀️ Pratique 10 minutos de meditação ou respiração profunda",
+                    reason: "Combate estresse elevado e baixa energia simultaneamente"
+                },
+                {
+                    text: "🛁 Tome um banho morno com música relaxante",
+                    reason: "Reduz tensão física e mental quando energia está baixa"
+                },
+                {
+                    text: "🌿 Faça uma caminhada lenta em ambiente natural",
+                    reason: "Exercício leve que energiza sem aumentar estresse"
+                }
             ],
-            medium: [
-                "💪 Faça alguns alongamentos ou exercícios leves",
-                "📚 Leia algumas páginas de um livro",
-                "🎨 Dedique tempo a um hobby criativo",
-                "🧹 Organize um pequeno espaço da sua casa",
-                "🍎 Prepare um lanche saudável",
-                "📝 Escreva em um diário por alguns minutos",
-                "🎯 Defina uma meta pequena para hoje",
-                "🌿 Cuide de uma planta ou jardim"
+            
+            // Sono ruim + Humor baixo
+            poorSleepLowMood: [
+                {
+                    text: "☀️ Exponha-se à luz natural por 15 minutos",
+                    reason: "Regula ciclo do sono e melhora humor naturalmente"
+                },
+                {
+                    text: "📱 Evite telas 1h antes de dormir hoje",
+                    reason: "Melhora qualidade do sono e reduz ansiedade"
+                },
+                {
+                    text: "🍵 Prepare um chá calmante (camomila, erva-cidreira)",
+                    reason: "Relaxa o corpo e prepara para melhor descanso"
+                }
             ],
-            high: [
-                "🏃‍♂️ Faça um exercício mais intenso",
-                "🎯 Trabalhe em um projeto pessoal importante",
-                "👥 Planeje um encontro social",
-                "📚 Aprenda algo novo online",
-                "🎪 Experimente uma nova atividade",
-                "💼 Organize seus planos para a semana",
-                "🎁 Faça algo gentil por outra pessoa",
-                "🌟 Celebre suas conquistas recentes"
+            
+            // Energia alta + Estresse baixo
+            highEnergyLowStress: [
+                {
+                    text: "🏃‍♂️ Faça um exercício mais intenso (corrida, HIIT)",
+                    reason: "Aproveite sua energia positiva para fortalecer o corpo"
+                },
+                {
+                    text: "🎯 Trabalhe em um projeto pessoal importante",
+                    reason: "Canal sua energia para algo significativo"
+                },
+                {
+                    text: "👥 Organize um encontro social ou chame amigos",
+                    reason: "Compartilhe sua energia positiva com outros"
+                }
+            ],
+            
+            // Humor baixo + Estresse alto
+            lowMoodHighStress: [
+                {
+                    text: "📞 Converse com alguém de confiança por 10 minutos",
+                    reason: "Suporte social reduz estresse e melhora humor"
+                },
+                {
+                    text: "📝 Escreva 3 coisas pelas quais é grato hoje",
+                    reason: "Gratidão comprovadamente melhora humor e reduz estresse"
+                },
+                {
+                    text: "🎵 Escute sua playlist favorita por 20 minutos",
+                    reason: "Música eleva humor e diminui hormônios do estresse"
+                }
+            ],
+            
+            // Recomendações por nível de energia
+            lowEnergy: [
+                {
+                    text: "💧 Beba 2 copos d'água e um lanche saudável",
+                    reason: "Desidratação e baixa glicose causam fadiga"
+                },
+                {
+                    text: "🛏️ Tire um cochilo de 15-20 minutos",
+                    reason: "Power nap restaura energia sem afetar sono noturno"
+                },
+                {
+                    text: "🌱 Faça alongamentos suaves por 5 minutos",
+                    reason: "Ativa circulação e oxigenação sem esforço excessivo"
+                }
+            ],
+            
+            // Recomendações por qualidade do sono
+            poorSleep: [
+                {
+                    text: "☕ Evite cafeína após 14h hoje",
+                    reason: "Cafeína permanece no sistema por 6-8 horas"
+                },
+                {
+                    text: "🌡️ Mantenha quarto fresco (18-20°C) hoje à noite",
+                    reason: "Temperatura baixa induz sono mais profundo"
+                },
+                {
+                    text: "📚 Leia um livro físico por 30min antes de dormir",
+                    reason: "Atividade relaxante que não envolve telas"
+                }
+            ],
+            
+            // Recomendações por nível de estresse
+            highStress: [
+                {
+                    text: "⏰ Pratique a técnica 4-7-8: inspire 4s, segure 7s, expire 8s",
+                    reason: "Ativa sistema nervoso parassimpático rapidamente"
+                },
+                {
+                    text: "📋 Escreva suas preocupações e 1 ação para cada",
+                    reason: "Transforma ansiedade em plano de ação concreto"
+                },
+                {
+                    text: "🎨 Faça uma atividade criativa por 15 minutos",
+                    reason: "Arte e criatividade comprovadamente reduzem cortisol"
+                }
+            ],
+            
+            // Recomendações por humor
+            lowMood: [
+                {
+                    text: "🤝 Faça um ato de gentileza para outra pessoa",
+                    reason: "Ajudar outros libera endorfinas e serotonina"
+                },
+                {
+                    text: "🌞 Pratique 5 minutos de gratidão ao acordar",
+                    reason: "Estabelece tom positivo para o dia"
+                },
+                {
+                    text: "🚶‍♀️ Caminhe por 15 minutos ao ar livre",
+                    reason: "Exercício + natureza + sol = antidepressivo natural"
+                }
             ]
         };
 
         // Inicializar a aplicação
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
+            loadStats();
             updateStats();
         });
 
@@ -419,6 +647,17 @@
 
             // Verificar se é um novo dia
             checkNewDay();
+        }
+
+        function loadStats() {
+            // Carregar dados existentes dos cookies
+            sessionData.stats.totalUses = parseInt(getCookie('totalUses')) || 0;
+            sessionData.stats.todayUses = parseInt(getCookie('todayUses')) || 0;
+            sessionData.stats.lastUseDate = getCookie('lastUseDate') || '';
+            sessionData.stats.totalScore = parseInt(getCookie('totalScore')) || 0;
+            sessionData.stats.totalPracticed = parseInt(getCookie('totalPracticed')) || 0;
+            sessionData.stats.totalRecommendations = parseInt(getCookie('totalRecommendations')) || 0;
+            sessionData.stats.streak = parseInt(getCookie('streak')) || 0;
         }
 
         function selectOption(selectedOption) {
@@ -472,33 +711,69 @@
                 });
             }
 
-            // Atualizar estatísticas
-            updateUsageStats(totalScore);
+            // Gerar recomendações inteligentes
+            const recommendations = generateIntelligentRecommendations(responses);
+            sessionData.currentRecommendations = recommendations;
+            sessionData.practicedRecommendations = [];
 
-            // Determinar categoria de bem-estar
-            let category, title, selectedRecommendations;
-            
+            // Determinar título baseado no score
+            let title;
             if (avgScore <= 2.5) {
-                category = 'low';
-                title = '🌱 Momento para Autocuidado';
+                title = '🌱 Momento para Autocuidado Direcionado';
             } else if (avgScore <= 3.5) {
-                category = 'medium';
-                title = '⚖️ Equilíbrio e Crescimento';
+                title = '⚖️ Equilibrando e Fortalecendo';
             } else {
-                category = 'high';
-                title = '🌟 Energia Positiva';
+                title = '🌟 Potencializando sua Energia Positiva';
             }
 
-            // Selecionar recomendações aleatórias
-            selectedRecommendations = getRandomRecommendations(recommendations[category], 4);
-
             // Mostrar resultados
-            displayResults(title, selectedRecommendations);
+            displayResults(title, recommendations);
         }
 
-        function getRandomRecommendations(array, count) {
-            const shuffled = [...array].sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, count);
+        function generateIntelligentRecommendations(responses) {
+            let recommendations = [];
+            const { energy, mood, stress, sleep } = responses;
+
+            // Identificar combinações específicas e problemas prioritários
+            if (energy <= 2 && stress >= 4) {
+                recommendations.push(...intelligentRecommendations.lowEnergyHighStress);
+            }
+            
+            if (sleep <= 2 && mood <= 2) {
+                recommendations.push(...intelligentRecommendations.poorSleepLowMood);
+            }
+            
+            if (energy >= 4 && stress <= 2) {
+                recommendations.push(...intelligentRecommendations.highEnergyLowStress);
+            }
+            
+            if (mood <= 2 && stress >= 4) {
+                recommendations.push(...intelligentRecommendations.lowMoodHighStress);
+            }
+
+            // Adicionar recomendações específicas por área
+            if (energy <= 2) {
+                recommendations.push(...intelligentRecommendations.lowEnergy);
+            }
+            
+            if (sleep <= 2) {
+                recommendations.push(...intelligentRecommendations.poorSleep);
+            }
+            
+            if (stress >= 4) {
+                recommendations.push(...intelligentRecommendations.highStress);
+            }
+            
+            if (mood <= 2) {
+                recommendations.push(...intelligentRecommendations.lowMood);
+            }
+
+            // Remover duplicatas e selecionar as 5 mais relevantes
+            const uniqueRecommendations = recommendations.filter((rec, index, arr) => 
+                arr.findIndex(r => r.text === rec.text) === index
+            );
+
+            return uniqueRecommendations.slice(0, 5);
         }
 
         function displayResults(title, recs) {
@@ -507,14 +782,22 @@
             const recommendationsList = document.getElementById('recommendations');
             recommendationsList.innerHTML = '';
             
-            recs.forEach(rec => {
+            recs.forEach((rec, index) => {
                 const li = document.createElement('li');
-                li.textContent = rec;
+                li.className = 'recommendation-item';
+                li.innerHTML = `
+                    <div class="recommendation-content">
+                        <div class="recommendation-text">${rec.text}</div>
+                        <div class="recommendation-reason">${rec.reason}</div>
+                    </div>
+                    <div class="practice-checkbox" onclick="togglePractice(${index})" data-index="${index}"></div>
+                `;
                 recommendationsList.appendChild(li);
             });
 
             document.getElementById('results').classList.add('show');
             document.getElementById('wellnessForm').style.display = 'none';
+            document.getElementById('practiceSummary').style.display = 'block';
 
             // Scroll suave para os resultados
             document.getElementById('results').scrollIntoView({ 
@@ -522,91 +805,22 @@
             });
         }
 
-        function updateUsageStats(score) {
-            sessionData.stats.totalUses++;
-            sessionData.stats.todayUses++;
-            sessionData.stats.totalScore += score;
-
-            // Salvar nos cookies
-            setCookie('totalUses', sessionData.stats.totalUses, 365);
-            setCookie('todayUses', sessionData.stats.todayUses, 1);
-            setCookie('totalScore', sessionData.stats.totalScore, 365);
-            setCookie('lastUseDate', new Date().toDateString(), 365);
-
-            updateStats();
-        }
-
-        function updateStats() {
-            document.getElementById('totalUses').textContent = sessionData.stats.totalUses;
-            document.getElementById('todayUses').textContent = sessionData.stats.todayUses;
+        function togglePractice(index) {
+            const checkbox = document.querySelector(`[data-index="${index}"]`);
+            const isChecked = checkbox.classList.contains('checked');
             
-            const avgScore = sessionData.stats.totalUses > 0 ? 
-                (sessionData.stats.totalScore / (sessionData.stats.totalUses * 4)).toFixed(1) : 0;
-            document.getElementById('avgScore').textContent = avgScore;
-            
-            document.getElementById('streak').textContent = sessionData.stats.streak;
-        }
-
-        function checkNewDay() {
-            const today = new Date().toDateString();
-            const lastUse = getCookie('lastUseDate');
-            
-            if (lastUse && lastUse !== today) {
-                // Novo dia - resetar contador diário
-                sessionData.stats.todayUses = 0;
-                setCookie('todayUses', 0, 1);
-                
-                // Atualizar streak
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                
-                if (lastUse === yesterday.toDateString()) {
-                    sessionData.stats.streak++;
-                } else {
-                    sessionData.stats.streak = 0;
-                }
-                
-                setCookie('streak', sessionData.stats.streak, 365);
-            }
-        }
-
-        function resetForm() {
-            sessionData.responses = {};
-            document.querySelectorAll('.option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            document.getElementById('submitBtn').disabled = true;
-            document.getElementById('results').classList.remove('show');
-            document.getElementById('wellnessForm').style.display = 'block';
-            
-            // Rastrear nova avaliação no Google Analytics
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'new_assessment_started', {
-                    'event_category': 'engagement'
-                });
+            if (isChecked) {
+                checkbox.classList.remove('checked');
+                sessionData.practicedRecommendations = sessionData.practicedRecommendations.filter(i => i !== index);
+            } else {
+                checkbox.classList.add('checked');
+                sessionData.practicedRecommendations.push(index);
             }
             
-            // Scroll para o topo
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            updatePracticeStats();
         }
 
-        // Funções auxiliares para cookies
-        function setCookie(name, value, days) {
-            const expires = new Date();
-            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-        }
-
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for(let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-            }
-            return null;
-        }
-    </script>
-</body>
-</html>
+        function updatePracticeStats() {
+            const practiced = sessionData.practicedRecommendations.length;
+            const total = sessionData.currentRecommendations.length;
+            const percentage = total > 0 ? Math.round((practiced / total) * 100) : 0;
