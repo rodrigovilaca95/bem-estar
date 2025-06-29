@@ -8,7 +8,7 @@
   "theme_color": "#c4a8c8",
   "icons": [
     {
-      "src": "monitor-bem-estar.png",
+      "src": "monitor-bem-estar-icon.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
