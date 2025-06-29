@@ -1,11 +1,719 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta charset="UTF-8"><title>Bem-estar – Versão A</title></head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Bem-Estar</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#c4a8c8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Monitor de Bem-Estar">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk1vbml0b3IgZGUgQmVtLUVzdGFyIiwKICAic2hvcnRfbmFtZSI6ICJCZW0tRXN0YXIiLAogICJkZXNjcmlwdGlvbiI6ICJBdmFsaWUgY29tbyB2b2PDqiBlc3TDoSBzZSBzZW50aW5kbyBlIHJlY2ViYSByZWNvbWVuZGHDp8O1ZXMgcGVyc29uYWxpemFkYXMiLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2Y1ZjVmNSIsCiAgInRoZW1lX2NvbG9yIjogIiNjNGE4YzgiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1USTRJaUJvWldsbmFIUTlJakV5T0NJZ2RtbGxkMEp2ZUQwaU1DQXdJREV5T0NBeU9EZ2lJSGh0Ykc1elBTSm9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQR05wY21Oc1pTQmplRDBpTmpRaUlHTjVQU0kyTkNJZ2NqMGlOalFpSUdacGJHdzlJaU5qTkdFNFl6Z2lMejQ4ZEdWNGRDQjRQU0kyTkNJZ2VUMGlOelFpSUdacGJHdzlJaU5tWm1ZaUlIUmxlSFF0WVc1amFHOXlQU0p0YVdSa2JHVWlJR1p2Ym5RdGMybDZaVDBpTWpRaVBqZ3dPUzQzUEM5MFpYaDBQanh5WldOMElIaDBQU0l5TkNJZ2VUMGlPVGdpSUhkcFpIUm9QU0k0TUNJS0lHaGxhV2RvZEQwaU1UQWlJR1pwYkd3OUlpTmpOR0U0WXpnaUlISnZkVzVrWlhRdElHVnVaRDBpTWpBaUx6NDhkR1Y0ZENCNFBTSTJOQ0lnZVQwaU1UQTFJaUJtYVd4c1BTSWlabVptSWlCMFpYaDBMV0Z1WTJodmNqMGliV2xrWkd4bElpQm1iMjUwTFhOcGVtVTlJakU0SWo0Z0tTRDVtSTNwbjZub0pEd3ZkR1Y0ZEQ0OEwzTjJaejQ9IiwKICAgICAgInNpemVzIjogIjEyOHgxMjgiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0sCiAgImNhdGVnb3JpZXMiOiBbImhlYWx0aCIsICJ3ZWxsbmVzcyIsICJsaWZlc3R5bGUiXQp9">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KEHEEWX16P"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-KEHEEWX16P', {
+            page_title: 'Monitor de Bem-Estar',
+            page_location: window.location.href
+        });
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f4f8 0%, #f5e6f3 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #b8e6b8 0%, #dab3da 100%);
+            padding: 30px;
+            text-align: center;
+            color: #4a5568;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Botão de Instalação PWA */
+        .install-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #c4a8c8;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #c4a8c8;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .install-button:hover {
+            background: #c4a8c8;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(196, 168, 200, 0.3);
+        }
+
+        .install-button.show {
+            display: flex;
+        }
+
+        .install-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .wellness-form {
+            margin-bottom: 40px;
+        }
+
+        .question-group {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #faf9fc;
+            border-radius: 15px;
+            border-left: 4px solid #c4a8c8;
+            transition: all 0.3s ease;
+        }
+
+        .question-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .option {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #e8d5e8;
+            border-radius: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .option:hover {
+            border-color: #c4a8c8;
+            transform: translateY(-1px);
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #c4a8c8 0%, #b8d4b8 100%);
+            color: white;
+            border-color: #c4a8c8;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #c4a8c8 0%, #b8d4b8 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(196, 168, 200, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            display: none;
+            padding: 30px;
+            background: linear-gradient(135deg, #f0f8f0 0%, #f8f0f8 100%);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .recommendations {
+            list-style: none;
+        }
+
+        .recommendations li {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #c4a8c8;
+            transition: all 0.3s ease;
+        }
+
+        .recommendations li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stats h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #8fa3a3;
+            display: block;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: #f7a4a4;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #f48f8f;
+            transform: translateY(-1px);
+        }
+
+        /* Notificação de instalação */
+        .install-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .install-notification.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .options {
+                flex-direction: column;
+            }
+            
+            .option {
+                min-width: auto;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+
+            .install-button {
+                position: static;
+                margin-top: 15px;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
 <body>
-  <h1>Bem-estar – Versão A</h1>
-  <nav>
-    <a href="../">Voltar à Home</a> | 
-    <a href="../versao-b/">Ir para Versão B</a>
-  </nav>
-</body>
-</html>
+    <div class="container">
+        <div class="header">
+            <button class="install-button" id="installButton">
+                <svg class="install-icon" viewBox="0 0 24 24">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Instalar App
+            </button>
+            <h1>💚 Monitor de Bem-Estar</h1>
+            <p>Avalie como você está se sentindo e receba recomendações personalizadas</p>
+            <p>Versão: 1.4 - PWA</p>
+        </div>
+
+        <div class="content">
+            <form class="wellness-form" id="wellnessForm">
+                <div class="question-group">
+                    <div class="question-title">Como está seu nível de energia hoje?</div>
+                    <div class="options">
+                        <div class="option" data-question="energy" data-value="1">Muito baixo</div>
+                        <div class="option" data-question="energy" data-value="2">Baixo</div>
+                        <div class="option" data-question="energy" data-value="3">Médio</div>
+                        <div class="option" data-question="energy" data-value="4">Alto</div>
+                        <div class="option" data-question="energy" data-value="5">Muito alto</div>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">Como está seu humor?</div>
+                    <div class="options">
+                        <div class="option" data-question="mood" data-value="1">Triste</div>
+                        <div class="option" data-question="mood" data-value="2">Um pouco mal</div>
+                        <div class="option" data-question="mood" data-value="3">Neutro</div>
+                        <div class="option" data-question="mood" data-value="4">Bem</div>
+                        <div class="option" data-question="mood" data-value="5">Ótimo</div>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">Qual seu nível de estresse?</div>
+                    <div class="options">
+                        <div class="option" data-question="stress" data-value="5">Muito baixo</div>
+                        <div class="option" data-question="stress" data-value="4">Baixo</div>
+                        <div class="option" data-question="stress" data-value="3">Médio</div>
+                        <div class="option" data-question="stress" data-value="2">Alto</div>
+                        <div class="option" data-question="stress" data-value="1">Muito alto</div>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">Como foi seu sono?</div>
+                    <div class="options">
+                        <div class="option" data-question="sleep" data-value="1">Muito ruim</div>
+                        <div class="option" data-question="sleep" data-value="2">Ruim</div>
+                        <div class="option" data-question="sleep" data-value="3">Médio</div>
+                        <div class="option" data-question="sleep" data-value="4">Bom</div>
+                        <div class="option" data-question="sleep" data-value="5">Excelente</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                    Receber Recomendações Personalizadas
+                </button>
+            </form>
+
+            <div class="results" id="results">
+                <div class="result-title" id="resultTitle"></div>
+                <ul class="recommendations" id="recommendations"></ul>
+                <button class="reset-btn" onclick="resetForm()">Nova Avaliação</button>
+            </div>
+
+            <div class="stats">
+                <h3>📊 Estatísticas de Uso</h3>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalUses">0</span>
+                        <div class="stat-label">Total de Usos</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="todayUses">0</span>
+                        <div class="stat-label">Usos Hoje</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="avgScore">0</span>
+                        <div class="stat-label">Score Médio</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="streak">0</span>
+                        <div class="stat-label">Dias Consecutivos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificação de instalação -->
+    <div class="install-notification" id="installNotification">
+        ✅ App instalado com sucesso!
+    </div>
+
+    <script>
+        // Dados armazenados em memória durante a sessão
+        let sessionData = {
+            responses: {},
+            stats: {
+                totalUses: parseInt(getCookie('totalUses')) || 0,
+                todayUses: parseInt(getCookie('todayUses')) || 0,
+                lastUseDate: getCookie('lastUseDate') || '',
+                totalScore: parseInt(getCookie('totalScore')) || 0,
+                streak: parseInt(getCookie('streak')) || 0
+            }
+        };
+
+        // Variável para armazenar o evento de instalação
+        let deferredPrompt;
+
+        // Sistema de recomendações baseado nas respostas
+        const recommendations = {
+            low: [
+                "🧘‍♀️ Pratique 5 minutos de respiração profunda",
+                "🚶‍♂️ Faça uma caminhada de 10 minutos ao ar livre",
+                "💧 Beba um copo d'água e hidrate-se",
+                "🎵 Escute uma música que te deixa feliz",
+                "📞 Entre em contato com um amigo ou familiar",
+                "🌱 Pratique gratidão: liste 3 coisas boas do seu dia",
+                "☀️ Saia para tomar um pouco de sol",
+                "🛁 Tome um banho relaxante"
+            ],
+            medium: [
+                "💪 Faça alguns alongamentos ou exercícios leves",
+                "📚 Leia algumas páginas de um livro",
+                "🎨 Dedique tempo a um hobby criativo",
+                "🧹 Organize um pequeno espaço da sua casa",
+                "🍎 Prepare um lanche saudável",
+                "📝 Escreva em um diário por alguns minutos",
+                "🎯 Defina uma meta pequena para hoje",
+                "🌿 Cuide de uma planta ou jardim"
+            ],
+            high: [
+                "🏃‍♂️ Faça um exercício mais intenso",
+                "🎯 Trabalhe em um projeto pessoal importante",
+                "👥 Planeje um encontro social",
+                "📚 Aprenda algo novo online",
+                "🎪 Experimente uma nova atividade",
+                "💼 Organize seus planos para a semana",
+                "🎁 Faça algo gentil por outra pessoa",
+                "🌟 Celebre suas conquistas recentes"
+            ]
+        };
+
+        // Inicializar a aplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            initializePWA();
+            updateStats();
+        });
+
+        function initializeApp() {
+            // Configurar event listeners para as opções
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectOption(this);
+                });
+            });
+
+            // Configurar formulário
+            document.getElementById('wellnessForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                processResults();
+            });
+
+            // Verificar se é um novo dia
+            checkNewDay();
+        }
+
+        // Inicializar funcionalidades PWA
+        function initializePWA() {
+            // Escutar o evento beforeinstallprompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallButton();
+            });
+
+            // Configurar botão de instalação
+            document.getElementById('installButton').addEventListener('click', installApp);
+
+            // Escutar evento de instalação
+            window.addEventListener('appinstalled', () => {
+                showInstallNotification();
+                hideInstallButton();
+                
+                // Rastrear instalação no Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'pwa_installed', {
+                        'event_category': 'engagement'
+                    });
+                }
+            });
+        }
+
+        function showInstallButton() {
+            document.getElementById('installButton').classList.add('show');
+        }
+
+        function hideInstallButton() {
+            document.getElementById('installButton').classList.remove('show');
+        }
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuário aceitou a instalação');
+                    } else {
+                        console.log('Usuário rejeitou a instalação');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        function showInstallNotification() {
+            const notification = document.getElementById('installNotification');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function selectOption(selectedOption) {
+            const question = selectedOption.dataset.question;
+            const value = selectedOption.dataset.value;
+
+            // Remover seleção anterior da mesma pergunta
+            document.querySelectorAll(`[data-question="${question}"]`).forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Adicionar seleção atual
+            selectedOption.classList.add('selected');
+            sessionData.responses[question] = parseInt(value);
+
+            // Rastrear seleção no Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'question_answered', {
+                    'question_type': question,
+                    'answer_value': value,
+                    'event_category': 'engagement'
+                });
+            }
+
+            // Verificar se todas as perguntas foram respondidas
+            checkFormCompletion();
+        }
+
+        function checkFormCompletion() {
+            const requiredQuestions = ['energy', 'mood', 'stress', 'sleep'];
+            const answeredQuestions = Object.keys(sessionData.responses);
+            
+            const isComplete = requiredQuestions.every(q => answeredQuestions.includes(q));
+            document.getElementById('submitBtn').disabled = !isComplete;
+        }
+
+        function processResults() {
+            const responses = sessionData.responses;
+            const totalScore = responses.energy + responses.mood + (6 - responses.stress) + responses.sleep;
+            const avgScore = totalScore / 4;
+
+            // Rastrear evento no Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'wellness_assessment_completed', {
+                    'custom_parameter_1': 'wellness_score',
+                    'custom_parameter_2': avgScore.toFixed(1),
+                    'energy_level': responses.energy,
+                    'mood_level': responses.mood,
+                    'stress_level': responses.stress,
+                    'sleep_quality': responses.sleep
+                });
+            }
+
+            // Atualizar estatísticas
+            updateUsageStats(totalScore);
+
+            // Determinar categoria de bem-estar
+            let category, title, selectedRecommendations;
+            
+            if (avgScore <= 2.5) {
+                category = 'low';
+                title = '🌱 Momento para Autocuidado';
+            } else if (avgScore <= 3.5) {
+                category = 'medium';
+                title = '⚖️ Equilíbrio e Crescimento';
+            } else {
+                category = 'high';
+                title = '🌟 Energia Positiva';
+            }
+
+            // Selecionar recomendações aleatórias
+            selectedRecommendations = getRandomRecommendations(recommendations[category], 4);
+
+            // Mostrar resultados
+            displayResults(title, selectedRecommendations);
+        }
+
+        function getRandomRecommendations(array, count) {
+            const shuffled = [...array].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        function displayResults(title, recs) {
+            document.getElementById('resultTitle').textContent = title;
+            
+            const recommendationsList = document.getElementById('recommendations');
+            recommendationsList.innerHTML = '';
+            
+            recs.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                recommendationsList.appendChild(li);
+            });
+
+            document.getElementById('results').classList.add('show');
+            document.getElementById('wellnessForm').style.display = 'none';
+
+            // Scroll suave para os resultados
+            document.getElementById('results').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        function updateUsageStats(score) {
+            sessionData.stats.totalUses++;
+            sessionData.stats.todayUses++;
+            sessionData.stats.totalScore += score;
+
+            // Salvar nos cookies
+            setCookie('totalUses', sessionData.stats.totalUses, 365);
+            setCookie('todayUses', sessionData.stats.todayUses, 1);
+            setCookie('totalScore', sessionData.stats.totalScore, 365);
+            setCookie('lastUseDate', new Date().toDateString(), 365);
+
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('totalUses').textContent = sessionData.stats.totalUses;
+            document.getElementById('todayUses').textContent = sessionData.stats.todayUses;
+            
+            const avgScore = sessionData.stats.totalUses > 0 ? 
+                (sessionData.stats.totalScore / (sessionData.stats.totalUses * 4)).toFixed(1) : 0;
+            document.getElementById('avgScore').textContent = avgScore;
+            
+            document.getElementById('streak').textContent = sessionData.stats.streak;
+        }
+
+        function checkNewDay() {
+            const today = new Date().toDateString();
+            const lastUse = getCookie('lastUseDate');
+            
+            if (lastUse && lastUse !== today) {
+                // Novo dia - resetar contador diário
+                sessionData.stats.todayUses = 0;
+                setCookie('todayUses', 0, 1);
+                
+                // Atualizar streak
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (lastUse === yesterday.toDateString()) {
+                    sessionData.stats.streak++;
+                } else {
+                    sessionData.stats.streak = 0;
+                }
+                
+                setCookie('streak', session
