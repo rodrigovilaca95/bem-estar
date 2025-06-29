@@ -84,6 +84,7 @@
             display: none;
             align-items: center;
             gap: 8px;
+            pointer-events: none;
         }
 
         .install-button:hover {
@@ -95,14 +96,9 @@
 
         .install-button.show {
             display: flex;
+            pointer-events: auto; 
         }
-        .install-button {
-            pointer-events: none;
-        }
-        .install-button.show {
-            display: flex;
-            pointer-events: auto;
-        }
+
         .install-icon {
             width: 16px;
             height: 16px;
