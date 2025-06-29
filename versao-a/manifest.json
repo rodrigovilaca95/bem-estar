@@ -1,0 +1,17 @@
+{
+  "name": "Monitor de Bem-Estar",
+  "short_name": "Bem-Estar",
+  "description": "Avalie como você está se sentindo e receba recomendações personalizadas",
+  "start_url": "/bem-estar/versao-a/",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#c4a8c8",
+  "icons": [
+    {
+      "src": "monitor-bem-estar.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
