@@ -3,24 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor de Bem-Estar</title>
+    <title>Como você está se sentindo hoje?</title>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#c4a8c8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Monitor de Bem-Estar">
+    <meta name="apple-mobile-web-app-title" content="Como você está se sentindo hoje?">
     <link rel="manifest" href="manifest.json">
     
-    <!-- Google Analytics -->
+    <!-- Google Analytics - VERSÃO B -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KEHEEWX16P"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'G-KEHEEWX16P', {
-            page_title: 'Monitor de Bem-Estar',
-            page_location: window.location.href
+            page_title: 'Como você está se sentindo hoje? - Versão B',
+            page_location: window.location.href,
+            // Parâmetro customizado para identificar a versão do teste A/B
+            custom_map: {
+                'custom_parameter_1': 'ab_test_version',
+                'custom_parameter_2': 'wellness_score'
+            }
+        });
+        
+        // Marcar esta sessão como versão B do teste A/B
+        gtag('event', 'ab_test_view', {
+            'ab_test_version': 'B',
+            'test_name': 'title_subtitle_change',
+            'event_category': 'ab_testing'
         });
     </script>
     
@@ -226,11 +238,103 @@
             border-radius: 10px;
             border-left: 4px solid #c4a8c8;
             transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid transparent;
         }
 
         .recommendations li:hover {
             transform: translateX(5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #c4a8c8;
+        }
+
+        .recommendations li.selected {
+            background: linear-gradient(135deg, #c4a8c8 0%, #b8d4b8 100%);
+            color: white;
+            border-color: #c4a8c8;
+            transform: translateX(5px);
+        }
+
+        .recommendations li::after {
+            content: '✓';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: bold;
+        }
+
+        .recommendations li.selected::after {
+            opacity: 1;
+        }
+
+        .recommendation-selection-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(196, 168, 200, 0.1);
+            border-radius: 10px;
+            border: 1px solid #c4a8c8;
+        }
+
+        .recommendation-selection-info h4 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .recommendation-selection-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .save-selections-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .save-selections-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        .save-selections-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .save-status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .save-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .save-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         .stats {
@@ -349,9 +453,10 @@
                 </svg>
                 Instalar App
             </button>
-            <h1>💚 Monitor de Bem-Estar</h1>
-            <p>Avalie como você está se sentindo e receba recomendações personalizadas</p>
-            <p>Versão: 1.41 - PWA</p>
+            <!-- VERSÃO B: Título e subtítulo alterados -->
+            <h1>🧠 Como você está se sentindo hoje?</h1>
+            <p>Em menos de 1 minuto, receba recomendações personalizadas para melhorar seu bem-estar</p>
+            <p>Versão: 1.41 - PWA - Teste A/B Versão B</p>
         </div>
 
         <div class="content">
@@ -407,7 +512,23 @@
 
             <div class="results" id="results">
                 <div class="result-title" id="resultTitle"></div>
+                
+                <!-- Nova seção de seleção de recomendações -->
+                <div class="recommendation-selection-info">
+                    <h4>🎯 Selecione as recomendações que mais se adequam ao seu momento atual</h4>
+                    <p>Clique nas sugestões que você pretende seguir hoje (você pode escolher quantas quiser)</p>
+                </div>
+                
                 <ul class="recommendations" id="recommendations"></ul>
+                
+                <!-- Botão para salvar seleções -->
+                <button class="save-selections-btn" id="saveSelectionsBtn" onclick="saveUserSelections()">
+                    📊 Salvar Minhas Escolhas
+                </button>
+                
+                <!-- Status do salvamento -->
+                <div class="save-status" id="saveStatus"></div>
+                
                 <button class="reset-btn" onclick="resetForm()">Nova Avaliação</button>
             </div>
 
@@ -444,6 +565,8 @@
         // Dados armazenados em memória durante a sessão
         let sessionData = {
             responses: {},
+            currentRecommendations: [],
+            selectedRecommendations: [],
             stats: {
                 totalUses: parseInt(getCookie('totalUses')) || 0,
                 todayUses: parseInt(getCookie('todayUses')) || 0,
@@ -451,6 +574,14 @@
                 totalScore: parseInt(getCookie('totalScore')) || 0,
                 streak: parseInt(getCookie('streak')) || 0
             }
+        };
+
+        // Configuração do GitHub (substitua pelos seus dados)
+        const GITHUB_CONFIG = {
+            owner: 'seu-usuario-github',
+            repo: 'wellness-data',
+            path: 'wellness-responses.csv',
+            token: 'seu-token-github' // Em produção, use variáveis de ambiente
         };
 
         // Variável para armazenar o evento de instalação
@@ -532,10 +663,12 @@
                 showInstallNotification();
                 hideInstallButton();
                 
-                // Rastrear instalação no Google Analytics
+                // Rastrear instalação no Google Analytics - VERSÃO B
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'pwa_installed', {
-                        'event_category': 'engagement'
+                        'event_category': 'engagement',
+                        'ab_test_version': 'B',
+                        'test_name': 'title_subtitle_change'
                     });
                 }
             });
@@ -556,8 +689,24 @@
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('Usuário aceitou a instalação');
+                        // Rastrear aceitação da instalação - VERSÃO B
+                        if (typeof gtag !== 'undefined') {
+                            gtag('event', 'pwa_install_accepted', {
+                                'event_category': 'engagement',
+                                'ab_test_version': 'B',
+                                'test_name': 'title_subtitle_change'
+                            });
+                        }
                     } else {
                         console.log('Usuário rejeitou a instalação');
+                        // Rastrear rejeição da instalação - VERSÃO B
+                        if (typeof gtag !== 'undefined') {
+                            gtag('event', 'pwa_install_rejected', {
+                                'event_category': 'engagement',
+                                'ab_test_version': 'B',
+                                'test_name': 'title_subtitle_change'
+                            });
+                        }
                     }
                     deferredPrompt = null;
                 });
@@ -586,12 +735,14 @@
             selectedOption.classList.add('selected');
             sessionData.responses[question] = parseInt(value);
 
-            // Rastrear seleção no Google Analytics
+            // Rastrear seleção no Google Analytics - VERSÃO B
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'question_answered', {
                     'question_type': question,
                     'answer_value': value,
-                    'event_category': 'engagement'
+                    'event_category': 'engagement',
+                    'ab_test_version': 'B',
+                    'test_name': 'title_subtitle_change'
                 });
             }
 
@@ -612,11 +763,14 @@
             const totalScore = responses.energy + responses.mood + (6 - responses.stress) + responses.sleep;
             const avgScore = totalScore / 4;
 
-            // Rastrear evento no Google Analytics
+            // Rastrear evento no Google Analytics - VERSÃO B
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'wellness_assessment_completed', {
-                    'custom_parameter_1': 'wellness_score',
-                    'custom_parameter_2': avgScore.toFixed(1),
+                    'custom_parameter_1': 'ab_test_version',
+                    'custom_parameter_2': 'wellness_score',
+                    'ab_test_version': 'B',
+                    'test_name': 'title_subtitle_change',
+                    'wellness_score': avgScore.toFixed(1),
                     'energy_level': responses.energy,
                     'mood_level': responses.mood,
                     'stress_level': responses.stress,
@@ -656,12 +810,20 @@
         function displayResults(title, recs) {
             document.getElementById('resultTitle').textContent = title;
             
+            // Armazenar recomendações atuais
+            sessionData.currentRecommendations = recs;
+            sessionData.selectedRecommendations = [];
+            
             const recommendationsList = document.getElementById('recommendations');
             recommendationsList.innerHTML = '';
             
-            recs.forEach(rec => {
+            recs.forEach((rec, index) => {
                 const li = document.createElement('li');
                 li.textContent = rec;
+                li.dataset.index = index;
+                li.addEventListener('click', function() {
+                    toggleRecommendationSelection(this, index);
+                });
                 recommendationsList.appendChild(li);
             });
 
@@ -672,6 +834,195 @@
             document.getElementById('results').scrollIntoView({ 
                 behavior: 'smooth' 
             });
+        }
+
+        function toggleRecommendationSelection(element, index) {
+            const recommendation = sessionData.currentRecommendations[index];
+            
+            if (element.classList.contains('selected')) {
+                // Desmarcar
+                element.classList.remove('selected');
+                sessionData.selectedRecommendations = sessionData.selectedRecommendations.filter(
+                    item => item !== recommendation
+                );
+            } else {
+                // Marcar
+                element.classList.add('selected');
+                sessionData.selectedRecommendations.push(recommendation);
+            }
+
+            // Rastrear seleção no Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'recommendation_selected', {
+                    'recommendation_text': recommendation,
+                    'selection_action': element.classList.contains('selected') ? 'select' : 'deselect',
+                    'total_selected': sessionData.selectedRecommendations.length,
+                    'ab_test_version': 'B',
+                    'test_name': 'title_subtitle_change',
+                    'event_category': 'engagement'
+                });
+            }
+        }
+
+        async function saveUserSelections() {
+            const saveBtn = document.getElementById('saveSelectionsBtn');
+            const saveStatus = document.getElementById('saveStatus');
+            
+            saveBtn.disabled = true;
+            saveBtn.textContent = '⏳ Salvando...';
+            
+            try {
+                // Preparar dados para salvamento
+                const responseData = {
+                    timestamp: new Date().toISOString(),
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    time: new Date().toLocaleTimeString('pt-BR'),
+                    version: 'B',
+                    energy: sessionData.responses.energy,
+                    mood: sessionData.responses.mood,
+                    stress: sessionData.responses.stress,
+                    sleep: sessionData.responses.sleep,
+                    totalScore: sessionData.responses.energy + sessionData.responses.mood + (6 - sessionData.responses.stress) + sessionData.responses.sleep,
+                    avgScore: (sessionData.responses.energy + sessionData.responses.mood + (6 - sessionData.responses.stress) + sessionData.responses.sleep) / 4,
+                    recommendationsShown: sessionData.currentRecommendations.join('|'),
+                    recommendationsSelected: sessionData.selectedRecommendations.join('|'),
+                    selectedCount: sessionData.selectedRecommendations.length,
+                    totalRecommendations: sessionData.currentRecommendations.length
+                };
+
+                // Tentar salvar no GitHub
+                await saveToGitHub(responseData);
+                
+                showSaveStatus('success', '✅ Dados salvos com sucesso! Obrigado por participar da pesquisa.');
+                
+                // Rastrear salvamento no Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'data_saved_successfully', {
+                        'selected_recommendations_count': sessionData.selectedRecommendations.length,
+                        'total_recommendations': sessionData.currentRecommendations.length,
+                        'wellness_score': responseData.avgScore.toFixed(1),
+                        'ab_test_version': 'B',
+                        'test_name': 'title_subtitle_change',
+                        'event_category': 'conversion'
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Erro ao salvar dados:', error);
+                showSaveStatus('error', '❌ Erro ao salvar dados. Tente novamente mais tarde.');
+                
+                // Rastrear erro no Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'data_save_error', {
+                        'error_message': error.message,
+                        'ab_test_version': 'B',
+                        'test_name': 'title_subtitle_change',
+                        'event_category': 'error'
+                    });
+                }
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = '📊 Salvar Minhas Escolhas';
+            }
+        }
+
+        async function saveToGitHub(data) {
+            // Converter dados para CSV
+            const csvHeaders = [
+                'timestamp', 'date', 'time', 'version', 'energy', 'mood', 'stress', 'sleep',
+                'totalScore', 'avgScore', 'recommendationsShown', 'recommendationsSelected',
+                'selectedCount', 'totalRecommendations'
+            ];
+            
+            const csvRow = csvHeaders.map(header => {
+                const value = data[header];
+                // Escapar aspas duplas e envolver em aspas se contiver vírgulas
+                if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+                    return '"' + value.replace(/"/g, '""') + '"';
+                }
+                return value;
+            }).join(',');
+
+            try {
+                // Primeiro, tentar obter o arquivo existente
+                let existingContent = '';
+                let sha = null;
+                
+                try {
+                    const getResponse = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (getResponse.ok) {
+                        const fileData = await getResponse.json();
+                        existingContent = atob(fileData.content);
+                        sha = fileData.sha;
+                    }
+                } catch (e) {
+                    console.log('Arquivo não existe ainda, será criado');
+                }
+
+                // Se o arquivo não existe, criar cabeçalho
+                if (!existingContent) {
+                    existingContent = csvHeaders.join(',') + '\n';
+                }
+
+                // Adicionar nova linha
+                const newContent = existingContent + csvRow + '\n';
+                const encodedContent = btoa(unescape(encodeURIComponent(newContent)));
+
+                // Salvar arquivo atualizado
+                const saveResponse = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Novo registro de bem-estar - ${new Date().toLocaleString('pt-BR')}`,
+                        content: encodedContent,
+                        sha: sha
+                    })
+                });
+
+                if (!saveResponse.ok) {
+                    throw new Error(`Erro HTTP: ${saveResponse.status}`);
+                }
+
+                return await saveResponse.json();
+                
+            } catch (error) {
+                // Fallback: salvar localmente se GitHub falhar
+                console.warn('Falha ao salvar no GitHub, salvando localmente:', error);
+                saveToLocalStorage(data);
+                throw new Error('Dados salvos localmente. Configure o GitHub para salvamento em nuvem.');
+            }
+        }
+
+        function saveToLocalStorage(data) {
+            try {
+                const existingData = JSON.parse(localStorage.getItem('wellness_responses') || '[]');
+                existingData.push(data);
+                localStorage.setItem('wellness_responses', JSON.stringify(existingData));
+                console.log('Dados salvos no localStorage como backup');
+            } catch (error) {
+                console.error('Erro ao salvar no localStorage:', error);
+            }
+        }
+
+        function showSaveStatus(type, message) {
+            const saveStatus = document.getElementById('saveStatus');
+            saveStatus.className = `save-status ${type}`;
+            saveStatus.textContent = message;
+            saveStatus.style.display = 'block';
+            
+            setTimeout(() => {
+                saveStatus.style.display = 'none';
+            }, 5000);
         }
 
         function updateUsageStats(score) {
@@ -724,6 +1075,9 @@
 
         function resetForm() {
             sessionData.responses = {};
+            sessionData.currentRecommendations = [];
+            sessionData.selectedRecommendations = [];
+            
             document.querySelectorAll('.option').forEach(opt => {
                 opt.classList.remove('selected');
             });
@@ -731,10 +1085,12 @@
             document.getElementById('results').classList.remove('show');
             document.getElementById('wellnessForm').style.display = 'block';
             
-            // Rastrear nova avaliação no Google Analytics
+            // Rastrear nova avaliação no Google Analytics - VERSÃO B
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'new_assessment_started', {
-                    'event_category': 'engagement'
+                    'event_category': 'engagement',
+                    'ab_test_version': 'B',
+                    'test_name': 'title_subtitle_change'
                 });
             }
             
