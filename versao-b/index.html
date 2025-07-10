@@ -238,53 +238,11 @@
             border-radius: 10px;
             border-left: 4px solid #c4a8c8;
             transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            border: 2px solid transparent;
         }
 
         .recommendations li:hover {
             transform: translateX(5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-color: #c4a8c8;
-        }
-
-        .recommendations li.selected {
-            background: linear-gradient(135deg, #c4a8c8 0%, #b8d4b8 100%);
-            color: white;
-            border-color: #c4a8c8;
-            transform: translateX(5px);
-        }
-
-        .recommendations li::after {
-            content: '✓';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-weight: bold;
-        }
-
-        .recommendation-selection-info {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(196, 168, 200, 0.1);
-            border-radius: 10px;
-            border: 1px solid #c4a8c8;
-        }
-
-        .recommendation-selection-info h4 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-
-        .recommendation-selection-info p {
-            color: #666;
-            font-size: 0.9rem;
         }
 
         .stats {
@@ -410,54 +368,7 @@
         </div>
 
         <div class="content">
-                <div class="question-group">
-                    <div class="question-title">Como está seu nível de energia hoje?</div>
-                    <div class="options">
-                        <div class="option" data-question="energy" data-value="1">Muito baixo</div>
-                        <div class="option" data-question="energy" data-value="2">Baixo</div>
-                        <div class="option" data-question="energy" data-value="3">Médio</div>
-                        <div class="option" data-question="energy" data-value="4">Alto</div>
-                        <div class="option" data-question="energy" data-value="5">Muito alto</div>
-                    </div>
-                </div>
-
-                <div class="question-group">
-                    <div class="question-title">Como está seu humor?</div>
-                    <div class="options">
-                        <div class="option" data-question="mood" data-value="1">Triste</div>
-                        <div class="option" data-question="mood" data-value="2">Um pouco mal</div>
-                        <div class="option" data-question="mood" data-value="3">Neutro</div>
-                        <div class="option" data-question="mood" data-value="4">Bem</div>
-                        <div class="option" data-question="mood" data-value="5">Ótimo</div>
-                    </div>
-                </div>
-
-                <div class="question-group">
-                    <div class="question-title">Qual seu nível de estresse?</div>
-                    <div class="options">
-                        <div class="option" data-question="stress" data-value="5">Muito baixo</div>
-                        <div class="option" data-question="stress" data-value="4">Baixo</div>
-                        <div class="option" data-question="stress" data-value="3">Médio</div>
-                        <div class="option" data-question="stress" data-value="2">Alto</div>
-                        <div class="option" data-question="stress" data-value="1">Muito alto</div>
-                    </div>
-                </div>
-
-                <div class="question-group">
-                    <div class="question-title">Como foi seu sono?</div>
-                    <div class="options">
-                        <div class="option" data-question="sleep" data-value="1">Muito ruim</div>
-                        <div class="option" data-question="sleep" data-value="2">Ruim</div>
-                        <div class="option" data-question="sleep" data-value="3">Médio</div>
-                        <div class="option" data-question="sleep" data-value="4">Bom</div>
-                        <div class="option" data-question="sleep" data-value="5">Excelente</div>
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn" id="submitBtn" disabled>
-                    Receber Recomendações Personalizadas
-                </button>
-            </form>
+            <form class="wellness-form" id="wellnessForm">
                 <div class="question-group">
                     <div class="question-title">Como está seu nível de energia hoje?</div>
                     <div class="options">
@@ -509,15 +420,7 @@
 
             <div class="results" id="results">
                 <div class="result-title" id="resultTitle"></div>
-                
-                <!-- Seção de seleção de recomendações -->
-                <div class="recommendation-selection-info">
-                    <h4>🎯 Selecione as recomendações que mais se adequam ao seu momento atual</h4>
-                    <p>Clique nas sugestões que você pretende seguir hoje (você pode escolher quantas quiser)</p>
-                </div>
-                
                 <ul class="recommendations" id="recommendations"></ul>
-                
                 <button class="reset-btn" onclick="resetForm()">Nova Avaliação</button>
             </div>
 
@@ -554,8 +457,6 @@
         // Dados armazenados em memória durante a sessão
         let sessionData = {
             responses: {},
-            currentRecommendations: [],
-            selectedRecommendations: [],
             stats: {
                 totalUses: parseInt(getCookie('totalUses')) || 0,
                 todayUses: parseInt(getCookie('todayUses')) || 0,
@@ -618,18 +519,13 @@
             });
 
             // Configurar formulário
-            const form = document.getElementById('wellnessForm');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    processResults();
-                });
-            }
+            document.getElementById('wellnessForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                processResults();
+            });
 
             // Verificar se é um novo dia
             checkNewDay();
-            
-            console.log('✅ App inicializado com', document.querySelectorAll('.option').length, 'opções encontradas');
         }
 
         // Inicializar funcionalidades PWA
@@ -746,7 +642,7 @@
 
         function processResults() {
             const responses = sessionData.responses;
-            const totalScore = responses.energy + responses.mood + responses.stress + responses.sleep;
+            const totalScore = responses.energy + responses.mood + (6 - responses.stress) + responses.sleep;
             const avgScore = totalScore / 4;
 
             // Rastrear evento no Google Analytics - VERSÃO B
@@ -796,334 +692,23 @@
         function displayResults(title, recs) {
             document.getElementById('resultTitle').textContent = title;
             
-            // Armazenar recomendações atuais
-            sessionData.currentRecommendations = recs;
-            sessionData.selectedRecommendations = [];
-            
             const recommendationsList = document.getElementById('recommendations');
             recommendationsList.innerHTML = '';
             
-            recs.forEach((rec, index) => {
+            recs.forEach(rec => {
                 const li = document.createElement('li');
                 li.textContent = rec;
-                li.dataset.index = index;
-                li.addEventListener('click', function() {
-                    toggleRecommendationSelection(this, index);
-                });
                 recommendationsList.appendChild(li);
             });
 
             document.getElementById('results').classList.add('show');
             document.getElementById('wellnessForm').style.display = 'none';
 
-            // SALVAMENTO AUTOMÁTICO: Salvar dados assim que as recomendações são mostradas
-            saveDataAutomatically();
-
             // Scroll suave para os resultados
             document.getElementById('results').scrollIntoView({ 
                 behavior: 'smooth' 
             });
         }
-
-        function toggleRecommendationSelection(element, index) {
-            const recommendation = sessionData.currentRecommendations[index];
-            
-            if (element.classList.contains('selected')) {
-                // Desmarcar
-                element.classList.remove('selected');
-                sessionData.selectedRecommendations = sessionData.selectedRecommendations.filter(
-                    item => item !== recommendation
-                );
-            } else {
-                // Marcar
-                element.classList.add('selected');
-                sessionData.selectedRecommendations.push(recommendation);
-            }
-
-            // SALVAMENTO AUTOMÁTICO: Atualizar dados sempre que uma seleção mudar
-            saveDataAutomatically();
-
-            // Rastrear seleção no Google Analytics
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'recommendation_selected', {
-                    'recommendation_text': recommendation,
-                    'selection_action': element.classList.contains('selected') ? 'select' : 'deselect',
-                    'total_selected': sessionData.selectedRecommendations.length,
-                    'ab_test_version': 'B',
-                    'test_name': 'title_subtitle_change',
-                    'event_category': 'engagement'
-                });
-            }
-        }
-
-        function saveDataAutomatically() {
-            try {
-                // Preparar dados para salvamento
-                const responseData = {
-                    timestamp: new Date().toISOString(),
-                    date: new Date().toLocaleDateString('pt-BR'),
-                    time: new Date().toLocaleTimeString('pt-BR'),
-                    version: 'B',
-                    energy: sessionData.responses.energy || 0,
-                    mood: sessionData.responses.mood || 0,
-                    stress: sessionData.responses.stress || 0,
-                    sleep: sessionData.responses.sleep || 0,
-                    totalScore: (sessionData.responses.energy || 0) + (sessionData.responses.mood || 0) + (sessionData.responses.stress || 0) + (sessionData.responses.sleep || 0),
-                    avgScore: ((sessionData.responses.energy || 0) + (sessionData.responses.mood || 0) + (sessionData.responses.stress || 0) + (sessionData.responses.sleep || 0)) / 4,
-                    recommendationsShown: sessionData.currentRecommendations.join('|'),
-                    recommendationsSelected: sessionData.selectedRecommendations.join('|'),
-                    selectedCount: sessionData.selectedRecommendations.length,
-                    totalRecommendations: sessionData.currentRecommendations.length
-                };
-
-                // Salvar em localStorage sempre (backup)
-                saveToLocalStorage(responseData);
-
-                // Enviar para Google Sheets
-                sendToGoogleSheets(responseData);
-
-                console.log('✅ Dados salvos automaticamente:', responseData);
-                
-            } catch (error) {
-                console.error('Erro ao salvar dados automaticamente:', error);
-            }
-        }
-
-        async function sendToGoogleSheets(data) {
-            // URL do Google Apps Script configurado
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDRg4PvuJ8j3gK5ONZbfSOw2JNqNXb-ih86FyHfhzhWR6flKJdKLI9xcTa4ZoMfQQyVg/exec';
-            
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Necessário para CORS com Google Scripts
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                console.log('✅ Dados enviados para Google Sheets');
-                
-                // Rastrear envio no Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'data_sent_to_sheets', {
-                        'wellness_score': data.avgScore.toFixed(1),
-                        'selected_recommendations_count': data.selectedCount,
-                        'ab_test_version': 'B',
-                        'test_name': 'title_subtitle_change',
-                        'event_category': 'conversion'
-                    });
-                }
-
-            } catch (error) {
-                console.warn('Erro ao enviar para Google Sheets, dados salvos localmente:', error);
-                
-                // Rastrear erro no Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'sheets_send_error', {
-                        'error_message': error.message,
-                        'ab_test_version': 'B',
-                        'test_name': 'title_subtitle_change',
-                        'event_category': 'error'
-                    });
-                }
-            }
-        }
-
-        function saveToLocalStorage(data) {
-            try {
-                // Buscar dados existentes
-                let existingData = [];
-                try {
-                    const stored = localStorage.getItem('wellness_responses');
-                    if (stored) {
-                        existingData = JSON.parse(stored);
-                    }
-                } catch (e) {
-                    existingData = [];
-                }
-                
-                // Verificar se já existe um registro para esta sessão (evitar duplicatas)
-                const sessionId = `${data.date}_${data.time.split(':')[0]}:${data.time.split(':')[1]}`;
-                const existingIndex = existingData.findIndex(item => 
-                    item.date === data.date && 
-                    item.time.split(':')[0] === data.time.split(':')[0] &&
-                    item.time.split(':')[1] === data.time.split(':')[1]
-                );
-
-                if (existingIndex >= 0) {
-                    // Atualizar registro existente
-                    existingData[existingIndex] = data;
-                } else {
-                    // Adicionar novo registro
-                    existingData.push(data);
-                }
-                
-                // Salvar de volta
-                localStorage.setItem('wellness_responses', JSON.stringify(existingData));
-                
-            } catch (error) {
-                console.error('Erro ao salvar no localStorage:', error);
-            }
-        }
-
-        function resetForm() {
-            sessionData.responses = {};
-            sessionData.currentRecommendations = [];
-            sessionData.selectedRecommendations = [];
-            
-            document.querySelectorAll('.option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            document.getElementById('submitBtn').disabled = true;
-            document.getElementById('results').classList.remove('show');
-            document.getElementById('wellnessForm').style.display = 'block';
-            
-            // Rastrear nova avaliação no Google Analytics - VERSÃO B
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'new_assessment_started', {
-                    'event_category': 'engagement',
-                    'ab_test_version': 'B',
-                    'test_name': 'title_subtitle_change'
-                });
-            }
-            
-            // Scroll para o topo
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }Component(newContent)));
-
-                // Salvar arquivo atualizado
-                const saveResponse = await fetch(getUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${GITHUB_CONFIG.token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Wellness-Monitor-App'
-                    },
-                    body: JSON.stringify({
-                        message: `Novo registro de bem-estar - ${new Date().toLocaleString('pt-BR')}`,
-                        content: encodedContent,
-                        sha: sha
-                    })
-                });
-
-                if (!saveResponse.ok) {
-                    const errorText = await saveResponse.text();
-                    throw new Error(`Erro HTTP ${saveResponse.status}: ${errorText}`);
-                }
-
-                return await saveResponse.json();
-                
-            } catch (error) {
-                console.error('Erro detalhado do GitHub:', error);
-                throw new Error(`GitHub API: ${error.message}`);
-            }
-        }
-
-        function saveToLocalStorage(data) {
-            try {
-                // Criar uma chave única baseada na data
-                const storageKey = 'wellness_responses';
-                
-                // Buscar dados existentes
-                let existingData = [];
-                try {
-                    const stored = localStorage.getItem(storageKey);
-                    if (stored) {
-                        existingData = JSON.parse(stored);
-                    }
-                } catch (e) {
-                    console.warn('Erro ao ler dados existentes, criando nova lista');
-                    existingData = [];
-                }
-                
-                // Adicionar novo registro
-                existingData.push(data);
-                
-                // Salvar de volta
-                localStorage.setItem(storageKey, JSON.stringify(existingData));
-                
-                console.log('Dados salvos no localStorage:', data);
-                
-                // Também salvar uma versão CSV para fácil exportação
-                saveCSVToLocalStorage(data);
-                
-            } catch (error) {
-                console.error('Erro ao salvar no localStorage:', error);
-                throw new Error('Falha ao salvar localmente: ' + error.message);
-            }
-        }
-
-        function saveCSVToLocalStorage(data) {
-            try {
-                const csvHeaders = [
-                    'timestamp', 'date', 'time', 'version', 'energy', 'mood', 'stress', 'sleep',
-                    'totalScore', 'avgScore', 'recommendationsShown', 'recommendationsSelected',
-                    'selectedCount', 'totalRecommendations'
-                ];
-                
-                // Buscar CSV existente
-                let existingCSV = localStorage.getItem('wellness_csv');
-                
-                if (!existingCSV) {
-                    existingCSV = csvHeaders.join(',') + '\n';
-                }
-                
-                // Criar nova linha
-                const csvRow = csvHeaders.map(header => {
-                    const value = data[header];
-                    if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
-                        return '"' + value.replace(/"/g, '""') + '"';
-                    }
-                    return value;
-                }).join(',');
-                
-                // Adicionar nova linha
-                const newCSV = existingCSV + csvRow + '\n';
-                localStorage.setItem('wellness_csv', newCSV);
-                
-                console.log('CSV atualizado no localStorage');
-                
-            } catch (error) {
-                console.warn('Erro ao salvar CSV no localStorage:', error);
-            }
-        }
-
-        function showSaveStatus(type, message) {
-            const saveStatus = document.getElementById('saveStatus');
-            saveStatus.className = `save-status ${type}`;
-            saveStatus.textContent = message;
-            saveStatus.style.display = 'block';
-            
-            setTimeout(() => {
-                saveStatus.style.display = 'none';
-            }, 8000);
-        }
-
-        // Função para exportar dados salvos localmente (para debug/backup)
-        function exportLocalData() {
-            try {
-                const csvData = localStorage.getItem('wellness_csv');
-                if (csvData) {
-                    const blob = new Blob([csvData], { type: 'text/csv' });
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `wellness-data-${new Date().toISOString().split('T')[0]}.csv`;
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    console.log('Dados exportados com sucesso');
-                } else {
-                    console.log('Nenhum dado encontrado para exportar');
-                }
-            } catch (error) {
-                console.error('Erro ao exportar dados:', error);
-            }
-        }
-
-        // Adicionar ao console para debug: exportLocalData()
 
         function updateUsageStats(score) {
             sessionData.stats.totalUses++;
@@ -1175,9 +760,6 @@
 
         function resetForm() {
             sessionData.responses = {};
-            sessionData.currentRecommendations = [];
-            sessionData.selectedRecommendations = [];
-            
             document.querySelectorAll('.option').forEach(opt => {
                 opt.classList.remove('selected');
             });
