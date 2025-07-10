@@ -406,11 +406,58 @@
             <!-- VERSÃO B: Título e subtítulo alterados -->
             <h1>🧠 Como você está se sentindo hoje?</h1>
             <p>Em menos de 1 minuto, receba recomendações personalizadas para melhorar seu bem-estar</p>
-            <p>Versão: 1.5 - Versão B</p>
+            <p>Versão: 1.41 - PWA - Teste A/B Versão B</p>
         </div>
 
         <div class="content">
-            <form class="wellness-form" id="wellnessForm">
+                <div class="question-group">
+                    <div class="question-title">Como está seu nível de energia hoje?</div>
+                    <div class="options">
+                        <div class="option" data-question="energy" data-value="1">Muito baixo</div>
+                        <div class="option" data-question="energy" data-value="2">Baixo</div>
+                        <div class="option" data-question="energy" data-value="3">Médio</div>
+                        <div class="option" data-question="energy" data-value="4">Alto</div>
+                        <div class="option" data-question="energy" data-value="5">Muito alto</div>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">Como está seu humor?</div>
+                    <div class="options">
+                        <div class="option" data-question="mood" data-value="1">Triste</div>
+                        <div class="option" data-question="mood" data-value="2">Um pouco mal</div>
+                        <div class="option" data-question="mood" data-value="3">Neutro</div>
+                        <div class="option" data-question="mood" data-value="4">Bem</div>
+                        <div class="option" data-question="mood" data-value="5">Ótimo</div>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">Qual seu nível de estresse?</div>
+                    <div class="options">
+                        <div class="option" data-question="stress" data-value="5">Muito baixo</div>
+                        <div class="option" data-question="stress" data-value="4">Baixo</div>
+                        <div class="option" data-question="stress" data-value="3">Médio</div>
+                        <div class="option" data-question="stress" data-value="2">Alto</div>
+                        <div class="option" data-question="stress" data-value="1">Muito alto</div>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">Como foi seu sono?</div>
+                    <div class="options">
+                        <div class="option" data-question="sleep" data-value="1">Muito ruim</div>
+                        <div class="option" data-question="sleep" data-value="2">Ruim</div>
+                        <div class="option" data-question="sleep" data-value="3">Médio</div>
+                        <div class="option" data-question="sleep" data-value="4">Bom</div>
+                        <div class="option" data-question="sleep" data-value="5">Excelente</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                    Receber Recomendações Personalizadas
+                </button>
+            </form>
                 <div class="question-group">
                     <div class="question-title">Como está seu nível de energia hoje?</div>
                     <div class="options">
@@ -571,13 +618,18 @@
             });
 
             // Configurar formulário
-            document.getElementById('wellnessForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                processResults();
-            });
+            const form = document.getElementById('wellnessForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    processResults();
+                });
+            }
 
             // Verificar se é um novo dia
             checkNewDay();
+            
+            console.log('✅ App inicializado com', document.querySelectorAll('.option').length, 'opções encontradas');
         }
 
         // Inicializar funcionalidades PWA
