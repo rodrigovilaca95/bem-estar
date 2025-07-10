@@ -238,11 +238,57 @@
             border-radius: 10px;
             border-left: 4px solid #c4a8c8;
             transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid transparent;
         }
 
         .recommendations li:hover {
             transform: translateX(5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #c4a8c8;
+        }
+
+        .recommendations li.selected {
+            background: linear-gradient(135deg, #c4a8c8 0%, #b8d4b8 100%);
+            color: white;
+            border-color: #c4a8c8;
+            transform: translateX(5px);
+        }
+
+        .recommendations li::after {
+            content: '✓';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: bold;
+        }
+
+        .recommendations li.selected::after {
+            opacity: 1;
+        }
+
+        .recommendation-selection-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(196, 168, 200, 0.1);
+            border-radius: 10px;
+            border: 1px solid #c4a8c8;
+        }
+
+        .recommendation-selection-info h4 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .recommendation-selection-info p {
+            color: #666;
+            font-size: 0.9rem;
         }
 
         .stats {
@@ -420,7 +466,15 @@
 
             <div class="results" id="results">
                 <div class="result-title" id="resultTitle"></div>
+                
+                <!-- Seção de seleção de recomendações -->
+                <div class="recommendation-selection-info">
+                    <h4>🎯 Selecione as recomendações que mais se adequam ao seu momento atual</h4>
+                    <p>Clique nas sugestões que você pretende seguir hoje (você pode escolher quantas quiser)</p>
+                </div>
+                
                 <ul class="recommendations" id="recommendations"></ul>
+                
                 <button class="reset-btn" onclick="resetForm()">Nova Avaliação</button>
             </div>
 
@@ -457,6 +511,8 @@
         // Dados armazenados em memória durante a sessão
         let sessionData = {
             responses: {},
+            currentRecommendations: [],
+            selectedRecommendations: [],
             stats: {
                 totalUses: parseInt(getCookie('totalUses')) || 0,
                 todayUses: parseInt(getCookie('todayUses')) || 0,
@@ -642,7 +698,7 @@
 
         function processResults() {
             const responses = sessionData.responses;
-            const totalScore = responses.energy + responses.mood + (6 - responses.stress) + responses.sleep;
+            const totalScore = responses.energy + responses.mood + responses.stress + responses.sleep;
             const avgScore = totalScore / 4;
 
             // Rastrear evento no Google Analytics - VERSÃO B
@@ -692,22 +748,175 @@
         function displayResults(title, recs) {
             document.getElementById('resultTitle').textContent = title;
             
+            // Armazenar recomendações atuais
+            sessionData.currentRecommendations = recs;
+            sessionData.selectedRecommendations = [];
+            
             const recommendationsList = document.getElementById('recommendations');
             recommendationsList.innerHTML = '';
             
-            recs.forEach(rec => {
+            recs.forEach((rec, index) => {
                 const li = document.createElement('li');
                 li.textContent = rec;
+                li.dataset.index = index;
+                li.addEventListener('click', function() {
+                    toggleRecommendationSelection(this, index);
+                });
                 recommendationsList.appendChild(li);
             });
 
             document.getElementById('results').classList.add('show');
             document.getElementById('wellnessForm').style.display = 'none';
 
+            // SALVAMENTO AUTOMÁTICO: Salvar dados assim que as recomendações são mostradas
+            saveDataAutomatically();
+
             // Scroll suave para os resultados
             document.getElementById('results').scrollIntoView({ 
                 behavior: 'smooth' 
             });
+        }
+
+        function toggleRecommendationSelection(element, index) {
+            const recommendation = sessionData.currentRecommendations[index];
+            
+            if (element.classList.contains('selected')) {
+                // Desmarcar
+                element.classList.remove('selected');
+                sessionData.selectedRecommendations = sessionData.selectedRecommendations.filter(
+                    item => item !== recommendation
+                );
+            } else {
+                // Marcar
+                element.classList.add('selected');
+                sessionData.selectedRecommendations.push(recommendation);
+            }
+
+            // SALVAMENTO AUTOMÁTICO: Atualizar dados sempre que uma seleção mudar
+            saveDataAutomatically();
+
+            // Rastrear seleção no Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'recommendation_selected', {
+                    'recommendation_text': recommendation,
+                    'selection_action': element.classList.contains('selected') ? 'select' : 'deselect',
+                    'total_selected': sessionData.selectedRecommendations.length,
+                    'ab_test_version': 'B',
+                    'test_name': 'title_subtitle_change',
+                    'event_category': 'engagement'
+                });
+            }
+        }
+
+        function saveDataAutomatically() {
+            try {
+                // Preparar dados para salvamento
+                const responseData = {
+                    timestamp: new Date().toISOString(),
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    time: new Date().toLocaleTimeString('pt-BR'),
+                    version: 'B',
+                    energy: sessionData.responses.energy || 0,
+                    mood: sessionData.responses.mood || 0,
+                    stress: sessionData.responses.stress || 0,
+                    sleep: sessionData.responses.sleep || 0,
+                    totalScore: (sessionData.responses.energy || 0) + (sessionData.responses.mood || 0) + (sessionData.responses.stress || 0) + (sessionData.responses.sleep || 0),
+                    avgScore: ((sessionData.responses.energy || 0) + (sessionData.responses.mood || 0) + (sessionData.responses.stress || 0) + (sessionData.responses.sleep || 0)) / 4,
+                    recommendationsShown: sessionData.currentRecommendations.join('|'),
+                    recommendationsSelected: sessionData.selectedRecommendations.join('|'),
+                    selectedCount: sessionData.selectedRecommendations.length,
+                    totalRecommendations: sessionData.currentRecommendations.length
+                };
+
+                // Salvar em localStorage sempre (backup)
+                saveToLocalStorage(responseData);
+
+                // Enviar para Google Sheets
+                sendToGoogleSheets(responseData);
+
+                console.log('✅ Dados salvos automaticamente:', responseData);
+                
+            } catch (error) {
+                console.error('Erro ao salvar dados automaticamente:', error);
+            }
+        }
+
+        async function sendToGoogleSheets(data) {
+            // URL do Google Apps Script configurado
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDRg4PvuJ8j3gK5ONZbfSOw2JNqNXb-ih86FyHfhzhWR6flKJdKLI9xcTa4ZoMfQQyVg/exec';
+            
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Necessário para CORS com Google Scripts
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log('✅ Dados enviados para Google Sheets');
+                
+                // Rastrear envio no Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'data_sent_to_sheets', {
+                        'wellness_score': data.avgScore.toFixed(1),
+                        'selected_recommendations_count': data.selectedCount,
+                        'ab_test_version': 'B',
+                        'test_name': 'title_subtitle_change',
+                        'event_category': 'conversion'
+                    });
+                }
+
+            } catch (error) {
+                console.warn('Erro ao enviar para Google Sheets, dados salvos localmente:', error);
+                
+                // Rastrear erro no Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'sheets_send_error', {
+                        'error_message': error.message,
+                        'ab_test_version': 'B',
+                        'test_name': 'title_subtitle_change',
+                        'event_category': 'error'
+                    });
+                }
+            }
+        }
+
+        function saveToLocalStorage(data) {
+            try {
+                // Buscar dados existentes
+                let existingData = [];
+                try {
+                    const stored = localStorage.getItem('wellness_responses');
+                    if (stored) {
+                        existingData = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    existingData = [];
+                }
+                
+                // Verificar se já existe um registro para esta sessão (evitar duplicatas)
+                const existingIndex = existingData.findIndex(item => 
+                    item.date === data.date && 
+                    item.time.split(':')[0] === data.time.split(':')[0] &&
+                    item.time.split(':')[1] === data.time.split(':')[1]
+                );
+
+                if (existingIndex >= 0) {
+                    // Atualizar registro existente
+                    existingData[existingIndex] = data;
+                } else {
+                    // Adicionar novo registro
+                    existingData.push(data);
+                }
+                
+                // Salvar de volta
+                localStorage.setItem('wellness_responses', JSON.stringify(existingData));
+                
+            } catch (error) {
+                console.error('Erro ao salvar no localStorage:', error);
+            }
         }
 
         function updateUsageStats(score) {
@@ -760,6 +969,9 @@
 
         function resetForm() {
             sessionData.responses = {};
+            sessionData.currentRecommendations = [];
+            sessionData.selectedRecommendations = [];
+            
             document.querySelectorAll('.option').forEach(opt => {
                 opt.classList.remove('selected');
             });
@@ -841,6 +1053,5 @@
             });
         }
     </script>
-    <hr>
 </body>
 </html>
