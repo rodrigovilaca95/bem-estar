@@ -5,13 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Como você está se sentindo hoje?</title>
     
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#c4a8c8">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Como você está se sentindo hoje?">
-    <link rel="manifest" href="manifest.json">
-    
     <!-- Google Analytics - VERSÃO B -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KEHEEWX16P"></script>
     <script>
@@ -65,7 +58,6 @@
             padding: 30px;
             text-align: center;
             color: #4a5568;
-            position: relative;
         }
 
         .header h1 {
@@ -77,44 +69,6 @@
         .header p {
             font-size: 1.1rem;
             opacity: 0.9;
-        }
-
-        /* Botão de Instalação PWA */
-        .install-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #c4a8c8;
-            border-radius: 50px;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #c4a8c8;
-            transition: all 0.3s ease;
-            display: none;
-            align-items: center;
-            gap: 8px;
-            pointer-events: none;
-        }
-
-        .install-button:hover {
-            background: #c4a8c8;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(196, 168, 200, 0.3);
-        }
-
-        .install-button.show {
-            display: flex;
-            pointer-events: auto; 
-        }
-
-        .install-icon {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
         }
 
         .content {
@@ -238,57 +192,11 @@
             border-radius: 10px;
             border-left: 4px solid #c4a8c8;
             transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            border: 2px solid transparent;
         }
 
         .recommendations li:hover {
             transform: translateX(5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-color: #c4a8c8;
-        }
-
-        .recommendations li.selected {
-            background: linear-gradient(135deg, #c4a8c8 0%, #b8d4b8 100%);
-            color: white;
-            border-color: #c4a8c8;
-            transform: translateX(5px);
-        }
-
-        .recommendations li::after {
-            content: '✓';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-weight: bold;
-        }
-
-        .recommendations li.selected::after {
-            opacity: 1;
-        }
-
-        .recommendation-selection-info {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(196, 168, 200, 0.1);
-            border-radius: 10px;
-            border: 1px solid #c4a8c8;
-        }
-
-        .recommendation-selection-info h4 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-
-        .recommendation-selection-info p {
-            color: #666;
-            font-size: 0.9rem;
         }
 
         .stats {
@@ -347,31 +255,6 @@
             transform: translateY(-1px);
         }
 
-        /* Notificação de instalação */
-        .install-notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #4CAF50;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            display: none;
-            animation: slideUp 0.3s ease;
-        }
-
-        .install-notification.show {
-            display: block;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-
         @media (max-width: 768px) {
             .options {
                 flex-direction: column;
@@ -388,29 +271,16 @@
             .content {
                 padding: 20px;
             }
-
-            .install-button {
-                position: static;
-                margin-top: 15px;
-                width: 100%;
-                justify-content: center;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <button class="install-button" id="installButton">
-                <svg class="install-icon" viewBox="0 0 24 24">
-                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                </svg>
-                Instalar App
-            </button>
-            <!-- VERSÃO B: Título e subtítulo alterados -->
+            <!-- VERSÃO B: Apenas título e subtítulo alterados -->
             <h1>🧠 Como você está se sentindo hoje?</h1>
             <p>Em menos de 1 minuto, receba recomendações personalizadas para melhorar seu bem-estar</p>
-            <p>Versão: 1.41 - PWA - Teste A/B Versão B</p>
+            <p>Versão: 1.3 - Teste A/B Versão B</p>
         </div>
 
         <div class="content">
@@ -466,15 +336,7 @@
 
             <div class="results" id="results">
                 <div class="result-title" id="resultTitle"></div>
-                
-                <!-- Seção de seleção de recomendações -->
-                <div class="recommendation-selection-info">
-                    <h4>🎯 Selecione as recomendações que mais se adequam ao seu momento atual</h4>
-                    <p>Clique nas sugestões que você pretende seguir hoje (você pode escolher quantas quiser)</p>
-                </div>
-                
                 <ul class="recommendations" id="recommendations"></ul>
-                
                 <button class="reset-btn" onclick="resetForm()">Nova Avaliação</button>
             </div>
 
@@ -502,17 +364,10 @@
         </div>
     </div>
 
-    <!-- Notificação de instalação -->
-    <div class="install-notification" id="installNotification">
-        ✅ App instalado com sucesso!
-    </div>
-
     <script>
         // Dados armazenados em memória durante a sessão
         let sessionData = {
             responses: {},
-            currentRecommendations: [],
-            selectedRecommendations: [],
             stats: {
                 totalUses: parseInt(getCookie('totalUses')) || 0,
                 todayUses: parseInt(getCookie('todayUses')) || 0,
@@ -521,9 +376,6 @@
                 streak: parseInt(getCookie('streak')) || 0
             }
         };
-
-        // Variável para armazenar o evento de instalação
-        let deferredPrompt;
 
         // Sistema de recomendações baseado nas respostas
         const recommendations = {
@@ -562,7 +414,6 @@
         // Inicializar a aplicação
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
-            initializePWA();
             updateStats();
         });
 
@@ -582,82 +433,6 @@
 
             // Verificar se é um novo dia
             checkNewDay();
-        }
-
-        // Inicializar funcionalidades PWA
-        function initializePWA() {
-            // Escutar o evento beforeinstallprompt
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                showInstallButton();
-            });
-
-            // Configurar botão de instalação
-            document.getElementById('installButton').addEventListener('click', installApp);
-
-            // Escutar evento de instalação
-            window.addEventListener('appinstalled', () => {
-                showInstallNotification();
-                hideInstallButton();
-                
-                // Rastrear instalação no Google Analytics - VERSÃO B
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'pwa_installed', {
-                        'event_category': 'engagement',
-                        'ab_test_version': 'B',
-                        'test_name': 'title_subtitle_change'
-                    });
-                }
-            });
-        }
-
-        function showInstallButton() {
-            document.getElementById('installButton').classList.add('show');
-        }
-
-        function hideInstallButton() {
-            document.getElementById('installButton').classList.remove('show');
-        }
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('Usuário aceitou a instalação');
-                        // Rastrear aceitação da instalação - VERSÃO B
-                        if (typeof gtag !== 'undefined') {
-                            gtag('event', 'pwa_install_accepted', {
-                                'event_category': 'engagement',
-                                'ab_test_version': 'B',
-                                'test_name': 'title_subtitle_change'
-                            });
-                        }
-                    } else {
-                        console.log('Usuário rejeitou a instalação');
-                        // Rastrear rejeição da instalação - VERSÃO B
-                        if (typeof gtag !== 'undefined') {
-                            gtag('event', 'pwa_install_rejected', {
-                                'event_category': 'engagement',
-                                'ab_test_version': 'B',
-                                'test_name': 'title_subtitle_change'
-                            });
-                        }
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        }
-
-        function showInstallNotification() {
-            const notification = document.getElementById('installNotification');
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
         }
 
         function selectOption(selectedOption) {
@@ -698,7 +473,7 @@
 
         function processResults() {
             const responses = sessionData.responses;
-            const totalScore = responses.energy + responses.mood + responses.stress + responses.sleep;
+            const totalScore = responses.energy + responses.mood + (6 - responses.stress) + responses.sleep;
             const avgScore = totalScore / 4;
 
             // Rastrear evento no Google Analytics - VERSÃO B
@@ -748,175 +523,22 @@
         function displayResults(title, recs) {
             document.getElementById('resultTitle').textContent = title;
             
-            // Armazenar recomendações atuais
-            sessionData.currentRecommendations = recs;
-            sessionData.selectedRecommendations = [];
-            
             const recommendationsList = document.getElementById('recommendations');
             recommendationsList.innerHTML = '';
             
-            recs.forEach((rec, index) => {
+            recs.forEach(rec => {
                 const li = document.createElement('li');
                 li.textContent = rec;
-                li.dataset.index = index;
-                li.addEventListener('click', function() {
-                    toggleRecommendationSelection(this, index);
-                });
                 recommendationsList.appendChild(li);
             });
 
             document.getElementById('results').classList.add('show');
             document.getElementById('wellnessForm').style.display = 'none';
 
-            // SALVAMENTO AUTOMÁTICO: Salvar dados assim que as recomendações são mostradas
-            saveDataAutomatically();
-
             // Scroll suave para os resultados
             document.getElementById('results').scrollIntoView({ 
                 behavior: 'smooth' 
             });
-        }
-
-        function toggleRecommendationSelection(element, index) {
-            const recommendation = sessionData.currentRecommendations[index];
-            
-            if (element.classList.contains('selected')) {
-                // Desmarcar
-                element.classList.remove('selected');
-                sessionData.selectedRecommendations = sessionData.selectedRecommendations.filter(
-                    item => item !== recommendation
-                );
-            } else {
-                // Marcar
-                element.classList.add('selected');
-                sessionData.selectedRecommendations.push(recommendation);
-            }
-
-            // SALVAMENTO AUTOMÁTICO: Atualizar dados sempre que uma seleção mudar
-            saveDataAutomatically();
-
-            // Rastrear seleção no Google Analytics
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'recommendation_selected', {
-                    'recommendation_text': recommendation,
-                    'selection_action': element.classList.contains('selected') ? 'select' : 'deselect',
-                    'total_selected': sessionData.selectedRecommendations.length,
-                    'ab_test_version': 'B',
-                    'test_name': 'title_subtitle_change',
-                    'event_category': 'engagement'
-                });
-            }
-        }
-
-        function saveDataAutomatically() {
-            try {
-                // Preparar dados para salvamento
-                const responseData = {
-                    timestamp: new Date().toISOString(),
-                    date: new Date().toLocaleDateString('pt-BR'),
-                    time: new Date().toLocaleTimeString('pt-BR'),
-                    version: 'B',
-                    energy: sessionData.responses.energy || 0,
-                    mood: sessionData.responses.mood || 0,
-                    stress: sessionData.responses.stress || 0,
-                    sleep: sessionData.responses.sleep || 0,
-                    totalScore: (sessionData.responses.energy || 0) + (sessionData.responses.mood || 0) + (sessionData.responses.stress || 0) + (sessionData.responses.sleep || 0),
-                    avgScore: ((sessionData.responses.energy || 0) + (sessionData.responses.mood || 0) + (sessionData.responses.stress || 0) + (sessionData.responses.sleep || 0)) / 4,
-                    recommendationsShown: sessionData.currentRecommendations.join('|'),
-                    recommendationsSelected: sessionData.selectedRecommendations.join('|'),
-                    selectedCount: sessionData.selectedRecommendations.length,
-                    totalRecommendations: sessionData.currentRecommendations.length
-                };
-
-                // Salvar em localStorage sempre (backup)
-                saveToLocalStorage(responseData);
-
-                // Enviar para Google Sheets
-                sendToGoogleSheets(responseData);
-
-                console.log('✅ Dados salvos automaticamente:', responseData);
-                
-            } catch (error) {
-                console.error('Erro ao salvar dados automaticamente:', error);
-            }
-        }
-
-        async function sendToGoogleSheets(data) {
-            // URL do Google Apps Script atualizada
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyopEOfHuPz4faSdd_J5uH5kTffg-GA1BSfsFr4XGlUyWWNnavBEG6t8gDROABZTz0TIw/exec';
-            
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Necessário para CORS com Google Scripts
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                console.log('✅ Dados enviados para Google Sheets');
-                
-                // Rastrear envio no Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'data_sent_to_sheets', {
-                        'wellness_score': data.avgScore.toFixed(1),
-                        'selected_recommendations_count': data.selectedCount,
-                        'ab_test_version': 'B',
-                        'test_name': 'title_subtitle_change',
-                        'event_category': 'conversion'
-                    });
-                }
-
-            } catch (error) {
-                console.warn('Erro ao enviar para Google Sheets, dados salvos localmente:', error);
-                
-                // Rastrear erro no Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'sheets_send_error', {
-                        'error_message': error.message,
-                        'ab_test_version': 'B',
-                        'test_name': 'title_subtitle_change',
-                        'event_category': 'error'
-                    });
-                }
-            }
-        }
-
-        function saveToLocalStorage(data) {
-            try {
-                // Buscar dados existentes
-                let existingData = [];
-                try {
-                    const stored = localStorage.getItem('wellness_responses');
-                    if (stored) {
-                        existingData = JSON.parse(stored);
-                    }
-                } catch (e) {
-                    existingData = [];
-                }
-                
-                // Verificar se já existe um registro para esta sessão (evitar duplicatas)
-                const existingIndex = existingData.findIndex(item => 
-                    item.date === data.date && 
-                    item.time.split(':')[0] === data.time.split(':')[0] &&
-                    item.time.split(':')[1] === data.time.split(':')[1]
-                );
-
-                if (existingIndex >= 0) {
-                    // Atualizar registro existente
-                    existingData[existingIndex] = data;
-                } else {
-                    // Adicionar novo registro
-                    existingData.push(data);
-                }
-                
-                // Salvar de volta
-                localStorage.setItem('wellness_responses', JSON.stringify(existingData));
-                
-            } catch (error) {
-                console.error('Erro ao salvar no localStorage:', error);
-            }
         }
 
         function updateUsageStats(score) {
@@ -969,9 +591,6 @@
 
         function resetForm() {
             sessionData.responses = {};
-            sessionData.currentRecommendations = [];
-            sessionData.selectedRecommendations = [];
-            
             document.querySelectorAll('.option').forEach(opt => {
                 opt.classList.remove('selected');
             });
@@ -1008,49 +627,6 @@
                 if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
             }
             return null;
-        }
-
-        // Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const swCode = `
-                    const CACHE_NAME = 'wellness-monitor-v1';
-                    const urlsToCache = [
-                        '/',
-                        '/index.html'
-                    ];
-
-                    self.addEventListener('install', (event) => {
-                        event.waitUntil(
-                            caches.open(CACHE_NAME)
-                                .then((cache) => cache.addAll(urlsToCache))
-                        );
-                    });
-
-                    self.addEventListener('fetch', (event) => {
-                        event.respondWith(
-                            caches.match(event.request)
-                                .then((response) => {
-                                    if (response) {
-                                        return response;
-                                    }
-                                    return fetch(event.request);
-                                })
-                        );
-                    });
-                `;
-
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-
-                navigator.serviceWorker.register(swUrl)
-                    .then((registration) => {
-                        console.log('Service Worker registrado com sucesso:', registration.scope);
-                    })
-                    .catch((error) => {
-                        console.log('Falha ao registrar Service Worker:', error);
-                    });
-            });
         }
     </script>
 </body>
