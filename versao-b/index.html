@@ -450,12 +450,13 @@
 
             // Rastrear seleção no Google Analytics - VERSÃO B
             if (typeof gtag !== 'undefined') {
-                gtag('event', 'question_answered', {
+                gtag('event', 'question_answered_B', {
                     'question_type': question,
                     'answer_value': value,
                     'event_category': 'engagement',
                     'ab_test_version': 'B',
-                    'test_name': 'title_subtitle_change'
+                    'test_name': 'title_subtitle_change',
+                    'event_label': 'version_B'
                 });
             }
 
@@ -478,16 +479,16 @@
 
             // Rastrear evento no Google Analytics - VERSÃO B
             if (typeof gtag !== 'undefined') {
-                gtag('event', 'wellness_assessment_completed', {
-                    'custom_parameter_1': 'ab_test_version',
-                    'custom_parameter_2': 'wellness_score',
-                    'ab_test_version': 'B',
-                    'test_name': 'title_subtitle_change',
+                gtag('event', 'wellness_assessment_completed_B', {
                     'wellness_score': avgScore.toFixed(1),
                     'energy_level': responses.energy,
                     'mood_level': responses.mood,
                     'stress_level': responses.stress,
-                    'sleep_quality': responses.sleep
+                    'sleep_quality': responses.sleep,
+                    'event_category': 'conversion',
+                    'ab_test_version': 'B',
+                    'test_name': 'title_subtitle_change',
+                    'event_label': 'version_B'
                 });
             }
 
