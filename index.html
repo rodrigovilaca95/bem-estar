@@ -5,15 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor de Bem-Estar</title>
     
-    <!-- Google Analytics -->
+    <!-- Google Analytics - VERSÃO A -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KEHEEWX16P"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'G-KEHEEWX16P', {
-            page_title: 'Monitor de Bem-Estar',
-            page_location: window.location.href
+            page_title: 'Monitor de Bem-Estar - Versão A',
+            page_location: window.location.href,
+            // Parâmetro customizado para identificar a versão do teste A/B
+            custom_map: {
+                'custom_parameter_1': 'ab_test_version',
+                'custom_parameter_2': 'wellness_score'
+            }
+        });
+        
+        // Marcar esta sessão como versão A do teste A/B
+        gtag('event', 'page_view_A', {
+            'ab_test_version': 'A',
+            'test_name': 'title_subtitle_change',
+            'event_category': 'ab_testing',
+            'event_label': 'version_A',
+            'page_title': 'Monitor de Bem-Estar - Versão A',
+            'page_location': window.location.href
+        });
+        
+        gtag('event', 'ab_test_view', {
+            'ab_test_version': 'A',
+            'test_name': 'title_subtitle_change',
+            'event_category': 'ab_testing'
         });
     </script>
     
@@ -265,9 +286,10 @@
 <body>
     <div class="container">
         <div class="header">
+            <!-- VERSÃO A: Título e subtítulo originais -->
             <h1>💚 Monitor de Bem-Estar</h1>
             <p>Avalie como você está se sentindo e receba recomendações personalizadas</p>
-            <p>Versão: 1.3</p>
+            <p>Versão: 1.3 - Teste A/B Versão A</p>
         </div>
 
         <div class="content">
@@ -435,12 +457,15 @@
             selectedOption.classList.add('selected');
             sessionData.responses[question] = parseInt(value);
 
-            // Rastrear seleção no Google Analytics
+            // Rastrear seleção no Google Analytics - VERSÃO A
             if (typeof gtag !== 'undefined') {
-                gtag('event', 'question_answered', {
+                gtag('event', 'question_answered_A', {
                     'question_type': question,
                     'answer_value': value,
-                    'event_category': 'engagement'
+                    'event_category': 'engagement',
+                    'ab_test_version': 'A',
+                    'test_name': 'title_subtitle_change',
+                    'event_label': 'version_A'
                 });
             }
 
@@ -461,15 +486,18 @@
             const totalScore = responses.energy + responses.mood + (6 - responses.stress) + responses.sleep;
             const avgScore = totalScore / 4;
 
-            // Rastrear evento no Google Analytics
+            // Rastrear evento no Google Analytics - VERSÃO A
             if (typeof gtag !== 'undefined') {
-                gtag('event', 'wellness_assessment_completed', {
-                    'custom_parameter_1': 'wellness_score',
-                    'custom_parameter_2': avgScore.toFixed(1),
+                gtag('event', 'wellness_assessment_completed_A', {
+                    'wellness_score': avgScore.toFixed(1),
                     'energy_level': responses.energy,
                     'mood_level': responses.mood,
                     'stress_level': responses.stress,
-                    'sleep_quality': responses.sleep
+                    'sleep_quality': responses.sleep,
+                    'event_category': 'conversion',
+                    'ab_test_version': 'A',
+                    'test_name': 'title_subtitle_change',
+                    'event_label': 'version_A'
                 });
             }
 
@@ -580,10 +608,13 @@
             document.getElementById('results').classList.remove('show');
             document.getElementById('wellnessForm').style.display = 'block';
             
-            // Rastrear nova avaliação no Google Analytics
+            // Rastrear nova avaliação no Google Analytics - VERSÃO A
             if (typeof gtag !== 'undefined') {
-                gtag('event', 'new_assessment_started', {
-                    'event_category': 'engagement'
+                gtag('event', 'new_assessment_started_A', {
+                    'event_category': 'engagement',
+                    'ab_test_version': 'A',
+                    'test_name': 'title_subtitle_change',
+                    'event_label': 'version_A'
                 });
             }
             
@@ -609,11 +640,5 @@
             return null;
         }
     </script>
-    <hr>
-    <h2>Outras versões</h2>
-    <ul>
-        <li><a href="./versao-a/">Versão A</a></li>
-        <li><a href="./versao-b/">Versão B</a></li>
-    </ul>
 </body>
 </html>
